@@ -1,3 +1,52 @@
+This repo is to extract [SwinBERT](https://github.com/microsoft/SwinBERT)'s features used in our TIP paper
+
+> **Concept-Aware Video Captioning: Describing Videos With Effective Prior Information**
+>
+> Bang Yang, Meng Cao and Yuexian Zou*.
+>
+> [[IEEE Xplore](https://ieeexplore.ieee.org/document/10233200)], [[Github]](https://github.com/yangbang18/CARE.git)
+
+**Here are the instructions:**
+
+1. Download fine-tuned MSVD (test split CIDEr: 120.6) and MSRVTT (test split CIDEr: 53.8) checkpoints from [SwinBERT repo](https://github.com/microsoft/SwinBERT).
+2. Convert SwinBERT checkpoints:
+```
+python convert_swinbert.py ./models/table1/msvd/best-checkpoint/model.bin swinbert_msvd.pth
+
+python convert_swinbert.py ./models/table1/msrvtt/best-checkpoint/model.bin swinbert_msrvtt.pth
+```
+3. Extract features:
+```
+config=configs/recognition/swin/swin_base_patch244_window877_kinetics600_22k.py
+
+MSVD_root=/data/video_datasets/MSVD
+
+python extract_features.py \
+$config \
+swinbert_msvd.pth \
+--batch_size 4 \
+--num_workers 8 \
+--img_fn_format image_%05d.jpg \
+--dense \
+--video_root $MSVD_root/all_frames \
+--save_path $MSVD_root/feats/motion_swinbert_kinetics_cliplen64_dense.hdf5 
+
+
+MSRVTT_root=/data/video_datasets/MSRVTT
+python extract_features.py \
+$config \
+swinbert_msrvtt.pth \
+--batch_size 4 \
+--num_workers 8 \
+--img_fn_format image_%05d.jpg \
+--dense \
+--video_root $MSRVTT_root/all_frames \
+--save_path $MSRVTT_root/feats/motion_swinbert_kinetics_cliplen64_dense.hdf5
+```
+
+4. Now you can use `SwinBERTDense` feats in [yangbang18/CARE.git](https://github.com/yangbang18/CARE.git).
+
+
 # Video Swin Transformer
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/video-swin-transformer/action-classification-on-kinetics-400)](https://paperswithcode.com/sota/action-classification-on-kinetics-400?p=video-swin-transformer)
